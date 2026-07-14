@@ -1,0 +1,110 @@
+{% extends "layout_dashboard.html" %}
+{% set active_page = 'staff' %}
+{% block title %}Manage Staff{% endblock %}
+{% block content %}
+<h2 class="mb-4">Manage Trek Staff</h2>
+<h5 class="mb-3">
+    Pending Approval Requests
+    {% if pending_staff %}<span class="badge bg-warning text-dark">{{ pending_staff|length }}</span>{% endif %}
+</h5>
+{% if pending_staff %}
+<div class="table-responsive mb-4">
+    <table class="table table-hover bg-white">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for staff_user in pending_staff %}
+            <tr class="table-warning">
+                <td>{{ staff_user.staff_profile.display_id }}</td>
+                <td>{{ staff_user.full_name }}</td>
+                <td>{{ staff_user.email }}</td>
+                <td>{{ staff_user.phone or "-" }}</td>
+                <td>
+                    <form method="POST" action="{{ url_for('admin.approve_staff', user_id=staff_user.id) }}" class="d-inline">
+                        <button type="submit" class="btn btn-sm btn-success">Approve</button>
+                    </form>
+                    <form method="POST" action="{{ url_for('admin.reject_staff', user_id=staff_user.id) }}" class="d-inline">
+                        <button type="submit" class="btn btn-sm btn-outline-danger">Reject</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<p class="text-muted mb-4">No pending staff requests right now.</p>
+{% endif %}
+<h5 class="mb-3">Active Staff</h5>
+{% if active_staff %}
+<div class="table-responsive mb-4">
+    <table class="table table-hover bg-white">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for staff_user in active_staff %}
+            <tr class="{% if staff_user.is_blacklisted %}table-danger{% endif %}">
+                <td>{{ staff_user.staff_profile.display_id }}</td>
+                <td>{{ staff_user.full_name }}</td>
+                <td>{{ staff_user.email }}</td>
+                <td>{{ staff_user.phone or "-" }}</td>
+                <td>
+                    {% if staff_user.is_blacklisted %}
+                        <span class="badge bg-danger">Blacklisted</span>
+                    {% else %}
+                        <span class="badge bg-success">Active</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{{ url_for('admin.staff_detail', user_id=staff_user.id) }}"
+                       class="btn btn-sm btn-outline-secondary">View</a>
+                    <a href="{{ url_for('admin.edit_staff', user_id=staff_user.id) }}"
+                       class="btn btn-sm btn-outline-primary">Edit</a>
+                    <form method="POST" action="{{ url_for('admin.remove_staff', user_id=staff_user.id) }}"
+                          class="d-inline">
+                        <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<p class="text-muted mb-4">No active staff members yet.</p>
+{% endif %}
+{% if rejected_staff %}
+<h5 class="mb-3">Rejected Requests</h5>
+<div class="table-responsive">
+    <table class="table table-sm bg-white">
+        <thead>
+            <tr><th>ID</th><th>Name</th><th>Email</th></tr>
+        </thead>
+        <tbody>
+            {% for staff_user in rejected_staff %}
+            <tr class="text-muted">
+                <td>{{ staff_user.staff_profile.display_id }}</td>
+                <td>{{ staff_user.full_name }}</td>
+                <td>{{ staff_user.email }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends "layout_dashboard.html" %}
+{% import "admin/_status_badge.html" as badges %}
+{% set active_page = 'users' %}
+{% block title %}User Details{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">{{ user.full_name }} <span class="badge bg-light text-dark">{{ user.scoped_display_id }}</span></h2>
+    <a href="{{ url_for('admin.users_list') }}" class="btn btn-outline-secondary">&larr; Back to Users</a>
+</div>
+<div class="row">
+    <div class="col-md-6">
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <p><strong>Username:</strong> {{ user.username }}</p>
+                <p><strong>Email:</strong> {{ user.email }}</p>
+                <p><strong>Phone:</strong> {{ user.phone or "-" }}</p>
+                <p><strong>Joined Date:</strong> {{ user.created_at.strftime('%d %b %Y') if user.created_at else "-" }}
+                    &nbsp;|&nbsp;
+                    <strong>Month:</strong> {{ user.created_at.strftime('%B') if user.created_at else "-" }}
+                </p>
+                <p>
+                    <strong>Status:</strong>
+                    {% if user.is_blacklisted %}
+                        <span class="badge bg-danger">Blacklisted</span>
+                    {% else %}
+                        <span class="badge bg-success">Active</span>
+                    {% endif %}
+                </p>
+                <a href="{{ url_for('admin.edit_user', user_id=user.id) }}" class="btn btn-outline-primary">Edit</a>
+                <form method="POST" action="{{ url_for('admin.toggle_blacklist', user_id=user.id) }}" class="d-inline">
+                    {% if user.is_blacklisted %}
+                        <button type="submit" class="btn btn-outline-success">Un-blacklist</button>
+                    {% else %}
+                        <button type="submit" class="btn btn-outline-danger">Blacklist</button>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5>Booking History</h5>
+                {% if user.bookings %}
+                    <table class="table table-sm">
+                        <thead><tr><th>Trek</th><th>Status</th><th>Date</th></tr></thead>
+                        <tbody>
+                            {% for booking in user.bookings %}
+                            <tr>
+                                <td>{{ booking.trek.name }}</td>
+                                <td>{{ badges.status_badge(booking.status) }}</td>
+                                <td>{{ booking.booking_date.strftime('%d %b %Y') }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p class="text-muted">No bookings yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

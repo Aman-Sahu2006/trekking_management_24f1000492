@@ -1,0 +1,66 @@
+{% extends "layout_dashboard.html" %}
+{% import "admin/_status_badge.html" as badges %}
+{% set active_page = 'assigned_treks' %}
+{% block title %}Manage Trek{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">Manage Trek: {{ trek.name }} {{ badges.status_badge(trek.status) }}</h2>
+    <a href="{{ url_for('staff.trek_details', trek_id=trek.id) }}" class="btn btn-outline-secondary">&larr; Back to Trek</a>
+</div>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-body p-4">
+        <h5 class="mb-3">Quick Actions</h5>
+        <div class="d-flex gap-2 flex-wrap">
+            <form method="POST" action="{{ url_for('staff.trek_management', trek_id=trek.id) }}">
+                <input type="hidden" name="status" value="Started">
+                <input type="hidden" name="available_slots" value="{{ trek.available_slots }}">
+                <button type="submit" class="btn btn-trek"
+                        {% if trek.status in ["Started", "Completed"] %}disabled{% endif %}>
+                    Mark as Started
+                </button>
+            </form>
+            <form method="POST" action="{{ url_for('staff.trek_management', trek_id=trek.id) }}">
+                <input type="hidden" name="status" value="Completed">
+                <input type="hidden" name="available_slots" value="{{ trek.available_slots }}">
+                <button type="submit" class="btn btn-success"
+                        {% if trek.status == "Completed" %}disabled{% endif %}>
+                    Mark as Complete
+                </button>
+            </form>
+        </div>
+        <small class="text-muted d-block mt-2">
+            Use these to quickly update the trek's progress without changing the slot count.
+        </small>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body p-4">
+        <form method="POST" action="{{ url_for('staff.trek_management', trek_id=trek.id) }}">
+            <div class="mb-3">
+                <label for="status" class="form-label">Trek Status</label>
+                <select class="form-select" id="status" name="status">
+                    {% for option in ["Approved", "Open", "Closed", "Started", "Completed"] %}
+                        <option value="{{ option }}" {% if trek.status == option %}selected{% endif %}>
+                            {{ option }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <small class="text-muted">
+                    Set to "Open" so trekkers can book this trek.
+                </small>
+            </div>
+            <div class="mb-3">
+                <label for="available_slots" class="form-label">Available Slots</label>
+                <input type="number" min="0" max="{{ trek.total_slots }}"
+                       class="form-control" id="available_slots" name="available_slots"
+                       value="{{ trek.available_slots }}">
+                <small class="text-muted">Out of {{ trek.total_slots }} total slots.</small>
+            </div>
+            <button type="submit" class="btn btn-trek">Save Changes</button>
+            <a href="{{ url_for('staff.trek_details', trek_id=trek.id) }}" class="btn btn-outline-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

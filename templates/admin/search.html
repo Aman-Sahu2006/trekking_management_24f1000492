@@ -1,0 +1,74 @@
+{% extends "layout_dashboard.html" %}
+{% import "admin/_status_badge.html" as badges %}
+{% set active_page = 'search' %}
+{% block title %}Search{% endblock %}
+{% block content %}
+<h2 class="mb-4">Search Treks, Staff, or Users</h2>
+<form method="GET" action="{{ url_for('admin.search') }}" class="card shadow-sm p-3 mb-4">
+    <div class="row g-2">
+        <div class="col-md-3">
+            <select class="form-select" name="type">
+                <option value="trek" {% if search_type == 'trek' %}selected{% endif %}>Trek</option>
+                <option value="staff" {% if search_type == 'staff' %}selected{% endif %}>Staff</option>
+                <option value="user" {% if search_type == 'user' %}selected{% endif %}>User</option>
+            </select>
+        </div>
+        <div class="col-md-6">
+            <input type="text" class="form-control" name="q"
+                   placeholder="Search by name or ID (e.g. T001, S002, U003)..."
+                   value="{{ query_text }}">
+        </div>
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-trek w-100">Search</button>
+        </div>
+    </div>
+</form>
+{% if query_text %}
+    <h5>Results for "{{ query_text }}" in {{ search_type }}s:</h5>
+    {% if results %}
+        <div class="table-responsive">
+            <table class="table table-hover bg-white">
+                <thead>
+                    {% if search_type == 'trek' %}
+                        <tr><th>ID</th><th>Name</th><th>Location</th><th>Status</th><th>Action</th></tr>
+                    {% else %}
+                        <tr><th>ID</th><th>Name</th><th>Email</th><th>Action</th></tr>
+                    {% endif %}
+                </thead>
+                <tbody>
+                    {% for item in results %}
+                        {% if search_type == 'trek' %}
+                        <tr>
+                            <td>{{ item.display_id }}</td>
+                            <td>{{ item.name }}</td>
+                            <td>{{ item.location }}</td>
+                            <td>{{ badges.status_badge(item.status) }}</td>
+                            <td><a href="{{ url_for('admin.trek_details', trek_id=item.id) }}"
+                                   class="btn btn-sm btn-outline-secondary">View</a></td>
+                        </tr>
+                        {% elif search_type == 'staff' %}
+                        <tr>
+                            <td>{{ item.staff_profile.display_id }}</td>
+                            <td>{{ item.full_name }}</td>
+                            <td>{{ item.email }}</td>
+                            <td><a href="{{ url_for('admin.staff_detail', user_id=item.id) }}"
+                                   class="btn btn-sm btn-outline-secondary">View</a></td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td>{{ item.scoped_display_id }}</td>
+                            <td>{{ item.full_name }}</td>
+                            <td>{{ item.email }}</td>
+                            <td><a href="{{ url_for('admin.user_detail', user_id=item.id) }}"
+                                   class="btn btn-sm btn-outline-secondary">View</a></td>
+                        </tr>
+                        {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="text-muted">No results found.</p>
+    {% endif %}
+{% endif %}
+{% endblock %}

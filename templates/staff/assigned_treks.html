@@ -1,0 +1,30 @@
+{% extends "layout_dashboard.html" %}
+{% import "admin/_status_badge.html" as badges %}
+{% set active_page = 'assigned_treks' %}
+{% block title %}Assigned Treks{% endblock %}
+{% block content %}
+<h2 class="mb-4">All Assigned Treks</h2>
+{% if treks %}
+<div class="row">
+    {% for trek in treks %}
+    <div class="col-md-4">
+        <div class="card trek-card">
+            {% if trek.image_filename %}
+                <img src="{{ url_for('static', filename='upload/' + trek.image_filename) }}"
+                     class="card-img-top" alt="{{ trek.name }}">
+            {% endif %}
+            <div class="card-body">
+                <h5 class="card-title">{{ trek.name }}</h5>
+                <p class="card-text mb-1">{{ trek.location }} &middot; {{ trek.difficulty }}</p>
+                <p class="card-text mb-2">{{ badges.status_badge(trek.status) }}</p>
+                <a href="{{ url_for('staff.trek_details', trek_id=trek.id) }}"
+                   class="btn btn-trek btn-sm">View Details</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+    <p class="text-muted">No treks have been assigned to you yet.</p>
+{% endif %}
+{% endblock %}

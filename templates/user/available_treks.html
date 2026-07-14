@@ -1,0 +1,64 @@
+{% extends "layout_dashboard.html" %}
+{% set active_page = 'available_treks' %}
+{% block title %}Available Treks{% endblock %}
+{% block content %}
+<h2 class="mb-4">Available Treks</h2>
+<form method="GET" action="{{ url_for('user.available_treks') }}" class="card shadow-sm p-3 mb-4">
+    <div class="row g-2">
+        <div class="col-md-4">
+            <input type="text" class="form-control" name="q" placeholder="Search by trek name..."
+                   value="{{ search_text }}">
+        </div>
+        <div class="col-md-3">
+            <select class="form-select" name="difficulty">
+                <option value="">All Difficulties</option>
+                {% for level in ["Easy", "Moderate", "Hard"] %}
+                    <option value="{{ level }}" {% if difficulty_filter == level %}selected{% endif %}>
+                        {{ level }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <input type="text" class="form-control" name="location" placeholder="Filter by location..."
+                   value="{{ location_filter }}">
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-trek w-100">Filter</button>
+        </div>
+    </div>
+</form>
+{% if treks %}
+<div class="row">
+    {% for trek in treks %}
+    <div class="col-md-4">
+        <div class="card trek-card">
+            {% if trek.image_filename %}
+                <img src="{{ url_for('static', filename='upload/' + trek.image_filename) }}"
+                     class="card-img-top" alt="{{ trek.name }}">
+            {% endif %}
+            <div class="card-body">
+                <h5 class="card-title">{{ trek.name }}</h5>
+                <div class="d-flex justify-content-between card-text mb-1">
+                    <span><strong>Location:</strong> {{ trek.location }}</span>
+                    <span><strong>Difficulty:</strong> {{ trek.difficulty }}</span>
+                </div>
+                <div class="d-flex justify-content-between card-text mb-1">
+                    <span><strong>Duration:</strong> {{ trek.duration_days }} day(s)</span>
+                    <span><strong>Season:</strong> {{ trek.start_date.strftime('%B') if trek.start_date else "-" }}</span>
+                </div>
+                <div class="d-flex justify-content-between card-text mb-2">
+                    <span><strong>Dates:</strong> {{ trek.start_date.strftime('%d %b %Y') if trek.start_date else "-" }} &ndash; {{ trek.end_date.strftime('%d %b %Y') if trek.end_date else "-" }}</span>
+                    <span class="badge badge-open align-self-center">{{ trek.available_slots }} slots left</span>
+                </div>
+                <a href="{{ url_for('user.trek_details', trek_id=trek.id) }}"
+                   class="btn btn-trek btn-sm">View &amp; Book</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+    <p class="text-muted">No open treks match your search right now. Try different filters.</p>
+{% endif %}
+{% endblock %}

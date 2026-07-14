@@ -1,0 +1,67 @@
+{% extends "layout_dashboard.html" %}
+{% set active_page = 'profile' %}
+{% block title %}Edit Profile{% endblock %}
+{% block content %}
+<h2 class="mb-4">Edit Your Profile</h2>
+<div class="card shadow-sm">
+    <div class="card-body p-4">
+        <form method="POST" action="{{ url_for('user.edit_profile') }}">
+            <div class="mb-3">
+                <label for="full_name" class="form-label">Full Name</label>
+                <input type="text" class="form-control" id="full_name" name="full_name"
+                       value="{{ user.full_name }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" class="form-control" id="email" name="email"
+                       value="{{ user.email }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="phone" class="form-label">Phone Number</label>
+                <input type="text" class="form-control" id="phone" name="phone"
+                       value="{{ user.phone or '' }}">
+            </div>
+            <hr class="my-4">
+            <h5 class="mb-3">Physical Details</h5>
+            <p class="text-muted small">Used to check trek fitness (BMI) on trek pages.</p>
+            <div class="row g-3 mb-3">
+                <div class="col-md-4">
+                    <label for="age" class="form-label">Age</label>
+                    <input type="number" min="1" max="120" class="form-control" id="age" name="age"
+                           value="{{ user.profile.age if user.profile and user.profile.age is not none else '' }}">
+                </div>
+                <div class="col-md-4">
+                    <label for="weight_kg" class="form-label">Weight (kg)</label>
+                    <input type="number" min="1" step="0.1" class="form-control" id="weight_kg" name="weight_kg"
+                           value="{{ user.profile.weight_kg if user.profile and user.profile.weight_kg is not none else '' }}">
+                </div>
+                <div class="col-md-4">
+                    <label for="height_cm" class="form-label">Height (cm)</label>
+                    <input type="number" min="1" step="0.1" class="form-control" id="height_cm" name="height_cm"
+                           value="{{ user.profile.height_cm if user.profile and user.profile.height_cm is not none else '' }}">
+                </div>
+            </div>
+            <hr class="my-4">
+            <h5 class="mb-3">Address</h5>
+            <div class="row g-3 mb-3">
+                <div class="col-md-4">
+                    <label for="address_country" class="form-label">Country</label>
+                    <input type="text" class="form-control" id="address_country" name="address_country"
+                           value="{{ user.profile.address_country if user.profile else '' }}">
+                </div>
+                <div class="col-md-4">
+                    <label for="address_state" class="form-label">State</label>
+                    <input type="text" class="form-control" id="address_state" name="address_state"
+                           value="{{ user.profile.address_state if user.profile else '' }}">
+                </div>
+                <div class="col-md-4">
+                    <label for="address_city" class="form-label">City</label>
+                    <input type="text" class="form-control" id="address_city" name="address_city"
+                           value="{{ user.profile.address_city if user.profile else '' }}">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-trek">Save Changes</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

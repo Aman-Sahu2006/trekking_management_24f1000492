@@ -1,0 +1,56 @@
+{% extends "layout_dashboard.html" %}
+{% import "admin/_status_badge.html" as badges %}
+{% set active_page = 'staff' %}
+{% block title %}Staff Details{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">{{ staff.full_name }} <span class="badge bg-light text-dark">{{ staff.staff_profile.display_id }}</span></h2>
+    <a href="{{ url_for('admin.staff_list') }}" class="btn btn-outline-secondary">&larr; Back to Staff</a>
+</div>
+<div class="row">
+    <div class="col-md-6">
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <p><strong>Username:</strong> {{ staff.username }}</p>
+                <p><strong>Email:</strong> {{ staff.email }}</p>
+                <p><strong>Phone:</strong> {{ staff.phone or "-" }}</p>
+                <p>
+                    <strong>Status:</strong>
+                    {% if staff.is_blacklisted %}
+                        <span class="badge bg-danger">Blacklisted</span>
+                    {% else %}
+                        <span class="badge bg-success">Active</span>
+                    {% endif %}
+                </p>
+                <a href="{{ url_for('admin.edit_staff', user_id=staff.id) }}" class="btn btn-outline-primary">Edit</a>
+                <form method="POST" action="{{ url_for('admin.toggle_blacklist', user_id=staff.id) }}" class="d-inline">
+                    {% if staff.is_blacklisted %}
+                        <button type="submit" class="btn btn-outline-success">Un-blacklist</button>
+                    {% else %}
+                        <button type="submit" class="btn btn-outline-danger">Blacklist</button>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5>Assigned Treks</h5>
+                {% if staff.staff_profile and staff.staff_profile.assigned_treks %}
+                    <ul class="list-group">
+                        {% for trek in staff.staff_profile.assigned_treks %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <a href="{{ url_for('admin.trek_details', trek_id=trek.id) }}">{{ trek.name }}</a>
+                            {{ badges.status_badge(trek.status) }}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-muted">No treks assigned yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

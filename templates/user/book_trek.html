@@ -1,0 +1,21 @@
+{% extends "layout_dashboard.html" %}
+{% set active_page = 'available_treks' %}
+{% block title %}Book Trek{% endblock %}
+{% block content %}
+<h2 class="mb-4">Confirm Booking</h2>
+<div class="card shadow-sm">
+    <div class="card-body p-4">
+        <h5>{{ trek.name }}</h5>
+        <p><strong>Location:</strong> {{ trek.location }}</p>
+        <p><strong>Difficulty:</strong> {{ trek.difficulty }}</p>
+        <p><strong>Duration:</strong> {{ trek.duration_days }} day(s)</p>
+        <p><strong>Dates:</strong> {{ trek.start_date }} to {{ trek.end_date }}</p>
+        <p><strong>Available Slots:</strong> {{ trek.available_slots }} / {{ trek.total_slots }}</p>
+        <form method="POST" action="{{ url_for('user.book_trek', trek_id=trek.id) }}">
+            <p>Are you sure you want to book this trek?</p>
+            <button type="submit" class="btn btn-trek">Confirm Booking</button>
+            <a href="{{ url_for('user.trek_details', trek_id=trek.id) }}" class="btn btn-outline-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

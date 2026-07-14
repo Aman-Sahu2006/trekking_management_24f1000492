@@ -1,0 +1,38 @@
+{% extends "layout_dashboard.html" %}
+{% import "admin/_status_badge.html" as badges %}
+{% set active_page = 'history' %}
+{% block title %}Trek History{% endblock %}
+{% block content %}
+<h2 class="mb-4">My Trek History</h2>
+{% if bookings %}
+<div class="table-responsive">
+    <table class="table table-hover bg-white">
+        <thead>
+            <tr>
+                <th>Trek Name</th>
+                <th>Location</th>
+                <th>Status</th>
+                <th>Booked On</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for booking in bookings %}
+            <tr>
+                <td>{{ booking.trek.name }}</td>
+                <td>{{ booking.trek.location }}</td>
+                <td>{{ badges.status_badge(booking.status) }}</td>
+                <td>{{ booking.booking_date.strftime('%d %b %Y') }}</td>
+                <td>
+                    <a href="{{ url_for('user.history_details', booking_id=booking.id) }}"
+                       class="btn btn-sm btn-outline-secondary">View</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+    <p class="text-muted">You haven't booked any treks yet.</p>
+{% endif %}
+{% endblock %}

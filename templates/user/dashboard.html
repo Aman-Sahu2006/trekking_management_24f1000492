@@ -1,0 +1,55 @@
+{% extends "layout_dashboard.html" %}
+{% import "admin/_status_badge.html" as badges %}
+{% set active_page = 'dashboard' %}
+{% block title %}My Dashboard{% endblock %}
+{% block content %}
+<h2 class="mb-4">Welcome, {{ current_user.full_name }}</h2>
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h5 class="mb-3">My Current Bookings</h5>
+                {% if my_bookings %}
+                    <ul class="list-group">
+                        {% for booking in my_bookings %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <a href="{{ url_for('user.booking_details', booking_id=booking.id) }}">
+                                {{ booking.trek.name }}
+                            </a>
+                            {{ badges.status_badge(booking.status) }}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-muted">You don't have any active bookings.</p>
+                {% endif %}
+                <a href="{{ url_for('user.trek_history') }}" class="btn btn-outline-secondary btn-sm mt-3">
+                    View Full History
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h5 class="mb-3">Treks Open for Booking</h5>
+                {% if open_treks %}
+                    <ul class="list-group">
+                        {% for trek in open_treks[:5] %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <a href="{{ url_for('user.trek_details', trek_id=trek.id) }}">{{ trek.name }}</a>
+                            <span class="text-muted">{{ trek.available_slots }} slots left</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-muted">No treks are open for booking right now.</p>
+                {% endif %}
+                <a href="{{ url_for('user.available_treks') }}" class="btn btn-trek btn-sm mt-3">
+                    Browse All Treks
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

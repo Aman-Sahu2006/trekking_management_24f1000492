@@ -1,0 +1,43 @@
+{% extends "layout_dashboard.html" %}
+{% import "admin/_status_badge.html" as badges %}
+{% set active_page = 'dashboard' %}
+{% block title %}Staff Dashboard{% endblock %}
+{% block content %}
+<h2 class="mb-4">Welcome, {{ current_user.full_name }}</h2>
+<h5 class="mb-3">Your Assigned Treks</h5>
+{% if assigned_treks %}
+<div class="table-responsive">
+    <table class="table table-hover bg-white">
+        <thead>
+            <tr>
+                <th>Trek Name</th>
+                <th>Location</th>
+                <th>Status</th>
+                <th>Available Slots</th>
+                <th>Registered Users</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for trek in assigned_treks %}
+            <tr>
+                <td>{{ trek.name }}</td>
+                <td>{{ trek.location }}</td>
+                <td>{{ badges.status_badge(trek.status) }}</td>
+                <td>{{ trek.available_slots }} / {{ trek.total_slots }}</td>
+                <td>{{ booking_counts.get(trek.id, 0) }}</td>
+                <td>
+                    <a href="{{ url_for('staff.trek_management', trek_id=trek.id) }}"
+                       class="btn btn-sm btn-trek">Manage</a>
+                    <a href="{{ url_for('staff.participants', trek_id=trek.id) }}"
+                       class="btn btn-sm btn-outline-secondary">Participants</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+    <p class="text-muted">No treks have been assigned to you yet. Please check back later.</p>
+{% endif %}
+{% endblock %}

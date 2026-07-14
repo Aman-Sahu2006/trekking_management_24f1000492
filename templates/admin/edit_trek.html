@@ -1,0 +1,87 @@
+{% extends "layout_dashboard.html" %}
+{% set active_page = 'treks' %}
+{% block title %}{% if trek %}Edit Trek{% else %}Add Trek{% endif %}{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">{% if trek %}Edit Trek: {{ trek.name }}{% else %}Add New Trek{% endif %}</h2>
+    <a href="{{ url_for('admin.treks') }}" class="btn btn-outline-secondary">&larr; Back to Treks</a>
+</div>
+<div class="card shadow-sm">
+    <div class="card-body p-4">
+        <form method="POST"
+              action="{% if trek %}{{ url_for('admin.edit_trek', trek_id=trek.id) }}{% else %}{{ url_for('admin.add_trek') }}{% endif %}"
+              enctype="multipart/form-data">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="name" class="form-label">Trek Name</label>
+                    <input type="text" class="form-control" id="name" name="name"
+                           value="{{ trek.name if trek else '' }}" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="location" class="form-label">Location</label>
+                    <input type="text" class="form-control" id="location" name="location"
+                           value="{{ trek.location if trek else '' }}" required>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label for="difficulty" class="form-label">Difficulty</label>
+                    <select class="form-select" id="difficulty" name="difficulty" required>
+                        {% for level in ["Easy", "Moderate", "Hard"] %}
+                            <option value="{{ level }}"
+                                {% if trek and trek.difficulty == level %}selected{% endif %}>
+                                {{ level }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="duration_days" class="form-label">Duration (days)</label>
+                    <input type="number" min="1" class="form-control" id="duration_days"
+                           name="duration_days" value="{{ trek.duration_days if trek else '' }}" required>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="total_slots" class="form-label">Total Slots</label>
+                    <input type="number" min="1" class="form-control" id="total_slots"
+                           name="total_slots" value="{{ trek.total_slots if trek else '' }}" required>
+                    {% if trek %}
+                        <small class="text-muted">Currently {{ trek.available_slots }} available.</small>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="start_date" class="form-label">Start Date</label>
+                    <input type="date" class="form-control" id="start_date" name="start_date"
+                           value="{{ trek.start_date if trek else '' }}" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="end_date" class="form-label">End Date</label>
+                    <input type="date" class="form-control" id="end_date" name="end_date"
+                           value="{{ trek.end_date if trek else '' }}" required>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="description" class="form-label">Description</label>
+                <textarea class="form-control" id="description" name="description" rows="3">{{ trek.description if trek else '' }}</textarea>
+            </div>
+            <div class="mb-3">
+                <label for="safety_info" class="form-label">Health &amp; Awareness (Safety Information)</label>
+                <textarea class="form-control" id="safety_info" name="safety_info" rows="3"
+                          placeholder="e.g. altitude sickness precautions, fitness requirements, first-aid availability">{{ trek.safety_info if trek else '' }}</textarea>
+            </div>
+            <div class="mb-3">
+                <label for="image" class="form-label">Trek Photo (optional)</label>
+                <input type="file" class="form-control" id="image" name="image" accept="image/*">
+                {% if trek and trek.image_filename %}
+                    <small class="text-muted">Current image: {{ trek.image_filename }}</small>
+                {% endif %}
+            </div>
+            <button type="submit" class="btn btn-trek">
+                {% if trek %}Save Changes{% else %}Create Trek{% endif %}
+            </button>
+            <a href="{{ url_for('admin.treks') }}" class="btn btn-outline-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

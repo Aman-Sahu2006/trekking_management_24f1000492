@@ -1,0 +1,28 @@
+{% extends "layout_dashboard.html" %}
+{% import "admin/_status_badge.html" as badges %}
+{% set active_page = 'available_treks' %}
+{% block title %}Booking Details{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">Booking Details</h2>
+    <a href="{{ url_for('user.dashboard') }}" class="btn btn-outline-secondary">&larr; Back to Dashboard</a>
+</div>
+<div class="card shadow-sm">
+    <div class="card-body p-4">
+        <h5>{{ booking.trek.name }}</h5>
+        <p><strong>Booking ID:</strong> {{ booking.id }}</p>
+        <p><strong>Status:</strong> {{ badges.status_badge(booking.status) }}</p>
+        <p><strong>Booked On:</strong> {{ booking.booking_date.strftime('%d %b %Y, %I:%M %p') }}</p>
+        <p><strong>Trek Dates:</strong> {{ booking.trek.start_date }} to {{ booking.trek.end_date }}</p>
+        <p><strong>Location:</strong> {{ booking.trek.location }}</p>
+        {% with trek = booking.trek %}
+            {% include "user/_assigned_guide.html" %}
+        {% endwith %}
+        {% if booking.status == 'Booked' %}
+        <form method="POST" action="{{ url_for('user.cancel_booking', booking_id=booking.id) }}">
+            <button type="submit" class="btn btn-outline-danger">Cancel Booking</button>
+        </form>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

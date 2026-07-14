@@ -1,0 +1,19 @@
+{% extends "layout_dashboard.html" %}
+{% import "admin/_status_badge.html" as badges %}
+{% set active_page = 'history' %}
+{% block title %}History Details{% endblock %}
+{% block content %}
+<h2 class="mb-4">Booking Record</h2>
+<div class="card shadow-sm">
+    <div class="card-body p-4">
+        <h5>{{ booking.trek.name }}</h5>
+        <p><strong>Booking ID:</strong> {{ booking.id }}</p>
+        <p><strong>Status:</strong> {{ badges.status_badge(booking.status) }}</p>
+        <p><strong>Booked On:</strong> {{ booking.booking_date.strftime('%d %b %Y, %I:%M %p') }}</p>
+        <p><strong>Location:</strong> {{ booking.trek.location }}</p>
+        <p><strong>Difficulty:</strong> {{ booking.trek.difficulty }}</p>
+        <p><strong>Trek Dates:</strong> {{ booking.trek.start_date }} to {{ booking.trek.end_date }}</p>
+        <a href="{{ url_for('user.trek_history') }}" class="btn btn-outline-secondary">Back to History</a>
+    </div>
+</div>
+{% endblock %}

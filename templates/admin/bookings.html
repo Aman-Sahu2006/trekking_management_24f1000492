@@ -1,0 +1,60 @@
+{% extends "layout_dashboard.html" %}
+{% import "admin/_status_badge.html" as badges %}
+{% set active_page = 'bookings' %}
+{% block title %}Bookings{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Bookings</h2>
+</div>
+<ul class="nav nav-pills mb-4">
+    <li class="nav-item">
+        <a class="nav-link {% if not status_filter %}active{% endif %}"
+           href="{{ url_for('admin.bookings_list') }}">All</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if status_filter == 'Booked' %}active{% endif %}"
+           href="{{ url_for('admin.bookings_list', status='Booked') }}">Booked</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if status_filter == 'Cancelled' %}active{% endif %}"
+           href="{{ url_for('admin.bookings_list', status='Cancelled') }}">Cancelled</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if status_filter == 'Completed' %}active{% endif %}"
+           href="{{ url_for('admin.bookings_list', status='Completed') }}">Completed</a>
+    </li>
+</ul>
+{% if bookings %}
+<div class="table-responsive">
+    <table class="table table-hover bg-white">
+        <thead>
+            <tr>
+                <th>Booking ID</th>
+                <th>User</th>
+                <th>Trek</th>
+                <th>Booking Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for booking in bookings %}
+            <tr>
+                <td>B{{ "%03d"|format(booking.id) }}</td>
+                <td>{{ booking.user.full_name }}</td>
+                <td>{{ booking.trek.name }}</td>
+                <td>{{ booking.booking_date.strftime('%d %b %Y') }}</td>
+                <td>{{ badges.status_badge(booking.status) }}</td>
+                <td>
+                    <a href="{{ url_for('admin.booking_detail', booking_id=booking.id) }}"
+                       class="btn btn-sm btn-outline-secondary">View</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<p class="text-muted">No bookings found{% if status_filter %} with status "{{ status_filter }}"{% endif %}.</p>
+{% endif %}
+{% endblock %}

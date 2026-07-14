@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Peak Mist{% endblock %}</title>
+    <link
+        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css"
+        rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-trek">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand fw-bold" href="{{ url_for('auth.home') }}">
+                🏔️ Peak Mist
+            </a>
+            <div class="navbar-collapse" id="navMenu">
+                <ul class="navbar-nav ms-auto align-items-lg-center">
+                    <li class="nav-item">
+                        <span class="nav-link">
+                            <strong>{{ current_user.full_name }}</strong>
+                        </span>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('auth.logout') }}">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container-fluid">
+        <div class="row">
+            <nav class="col-md-3 col-lg-2 sidebar">
+                <ul class="nav flex-column">
+                    {% if current_user.role == 'admin' %}
+                        <li class="nav-item">
+                            <a class="nav-link {% if active_page == 'dashboard' %}active{% endif %}"
+                               href="{{ url_for('admin.dashboard') }}">📊 Dashboard</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if active_page == 'treks' %}active{% endif %}"
+                               href="{{ url_for('admin.treks') }}">🥾 Manage Treks</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if active_page == 'staff' %}active{% endif %}"
+                               href="{{ url_for('admin.staff_list') }}">👥 Manage Staff</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if active_page == 'users' %}active{% endif %}"
+                               href="{{ url_for('admin.users_list') }}">🧑‍🤝‍🧑 Manage Users</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if active_page == 'bookings' %}active{% endif %}"
+                               href="{{ url_for('admin.bookings_list') }}">📅 Bookings</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if active_page == 'search' %}active{% endif %}"
+                               href="{{ url_for('admin.search') }}">🔍 Search</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if active_page == 'analytics' %}active{% endif %}"
+                               href="{{ url_for('admin.analytics') }}">📈 Analytics</a>
+                        </li>
+                    {% elif current_user.role == 'staff' %}
+                        <li class="nav-item">
+                            <a class="nav-link {% if active_page == 'dashboard' %}active{% endif %}"
+                               href="{{ url_for('staff.dashboard') }}">📊 Dashboard</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if active_page == 'assigned_treks' %}active{% endif %}"
+                               href="{{ url_for('staff.assigned_treks') }}">🥾 Assigned Treks</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if active_page == 'profile' %}active{% endif %}"
+                               href="{{ url_for('staff.edit_profile') }}">⚙️ Edit Profile</a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link {% if active_page == 'dashboard' %}active{% endif %}"
+                               href="{{ url_for('user.dashboard') }}">📊 Dashboard</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if active_page == 'available_treks' %}active{% endif %}"
+                               href="{{ url_for('user.available_treks') }}">🥾 Available Treks</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if active_page == 'history' %}active{% endif %}"
+                               href="{{ url_for('user.trek_history') }}">📜 Trek History</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if active_page == 'profile' %}active{% endif %}"
+                               href="{{ url_for('user.edit_profile') }}">⚙️ Edit Profile</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            <main class="col-md-9 col-lg-10 p-4">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}" role="alert">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+</body>
+</html>

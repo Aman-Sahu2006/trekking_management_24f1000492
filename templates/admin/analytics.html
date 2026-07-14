@@ -1,0 +1,108 @@
+{% extends "layout_dashboard.html" %}
+{% set active_page = 'analytics' %}
+{% block title %}Analytics{% endblock %}
+{% block content %}
+<h2 class="mb-4">Trekking Statistics</h2>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <h5 class="chart-card-heading mb-3">Most Popular Treks (by number of bookings)</h5>
+        {% if treks_with_counts %}
+            {% set max_count = treks_with_counts[0][1] if treks_with_counts[0][1] > 0 else 1 %}
+            {% for trek, booking_count in treks_with_counts %}
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span><span class="chart-rank">{{ loop.index }}</span>{{ trek.name }}</span>
+                        <span class="fw-semibold">{{ booking_count }} booking{{ 's' if booking_count != 1 else '' }}</span>
+                    </div>
+                    <div class="simple-bar-track">
+                        <div class="simple-bar-fill {{ 'simple-bar-fill-alt' if loop.index is even else '' }}"
+                             style="width: {{ (booking_count / max_count * 100)|round(0) }}%;">
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p class="text-muted mb-0">No treks to show yet.</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <h5 class="chart-card-heading mb-3">Bookings by Month</h5>
+        {% if monthly_bookings and monthly_bookings|sum(attribute='count') > 0 %}
+            {% set max_month_count = monthly_bookings|map(attribute='count')|max %}
+            {% set max_month_count = max_month_count if max_month_count > 0 else 1 %}
+            <div class="column-chart">
+                {% for month in monthly_bookings %}
+                    <div class="column-chart-col">
+                        <span class="column-chart-count">{{ month.count }}</span>
+                        <div class="column-chart-bar-track">
+                            <div class="column-chart-bar-fill {{ 'column-chart-bar-fill-alt' if loop.index is even else '' }}"
+                                 style="height: {{ (month.count / max_month_count * 100)|round(0) }}%;">
+                            </div>
+                        </div>
+                        <span class="column-chart-label">{{ month.label }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-muted mb-0">No bookings to show yet.</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <h5 class="chart-card-heading mb-4">Bookings by Status</h5>
+        {% set total_bookings_count = booked_count + cancelled_count + completed_count %}
+        {% if total_bookings_count > 0 %}
+            {% set booked_pct = (booked_count / total_bookings_count * 100) %}
+            {% set cancelled_pct = (cancelled_count / total_bookings_count * 100) %}
+            {% set completed_pct = (completed_count / total_bookings_count * 100) %}
+            <div class="row align-items-center g-4">
+                <div class="col-md-5 text-center">
+                    <div class="donut-chart"
+                         style="background: conic-gradient(
+                                var(--mint) 0% {{ booked_pct }}%,
+                                var(--coral) {{ booked_pct }}% {{ (booked_pct + cancelled_pct) }}%,
+                                var(--sky) {{ (booked_pct + cancelled_pct) }}% 100%);">
+                        <div class="donut-center">
+                            <span class="donut-total">{{ total_bookings_count }}</span>
+                            <span class="donut-label">Total</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-7">
+                    <ul class="chart-legend">
+                        <li>
+                            <span class="legend-name">
+                                <span class="legend-swatch" style="background-color: var(--mint);"></span>
+                                <span class="badge badge-booked me-2">Booked</span>
+                            </span>
+                            <span class="legend-value">{{ booked_count }} ({{ booked_pct|round(0) }}%)</span>
+                        </li>
+                        <li>
+                            <span class="legend-name">
+                                <span class="legend-swatch" style="background-color: var(--coral);"></span>
+                                <span class="badge badge-cancelled me-2">Cancelled</span>
+                            </span>
+                            <span class="legend-value">{{ cancelled_count }} ({{ cancelled_pct|round(0) }}%)</span>
+                        </li>
+                        <li>
+                            <span class="legend-name">
+                                <span class="legend-swatch" style="background-color: var(--sky);"></span>
+                                <span class="badge badge-completed me-2">Completed</span>
+                            </span>
+                            <span class="legend-value">{{ completed_count }} ({{ completed_pct|round(0) }}%)</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        {% else %}
+            <p class="text-muted mb-0">No bookings to show yet.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,12 @@
+{#
+  _status_badge.html
+  -------------------
+  A small reusable Jinja MACRO (like a function for templates) that
+  turns a status string like "Open" or "Booked" into a colored badge.
+  Usage in any template:
+      {% import "admin/_status_badge.html" as badges %}
+      {{ badges.status_badge(trek.status) }}
+#}
+{% macro status_badge(status) %}
+    <span class="badge badge-{{ status|lower }}">{{ status }}</span>
+{% endmacro %}

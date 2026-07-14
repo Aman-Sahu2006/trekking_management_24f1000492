@@ -1,0 +1,30 @@
+{#
+  _assigned_guide.html
+  --------------------
+  Reusable card that shows the staff member (trek guide) assigned to a
+  trek, so a trekker can see who will be leading them: name,
+  mobile number, experience, and number of treks completed.
+  Usage: {% include "user/_assigned_guide.html" %}  (with `trek` in context)
+#}
+<div class="card border-0 mt-4 mb-4" style="background-color: var(--sky-pale, #f6eef7);">
+    <div class="card-body p-4">
+        <h5 class="fw-bold mb-3">Your Assigned Trek Guide</h5>
+        {% if trek.staff and trek.staff.user %}
+            <div>
+                <p class="mb-1 fw-bold">{{ trek.staff.user.full_name }}</p>
+                <p class="mb-1 small"><strong>Mobile:</strong> {{ trek.staff.user.phone or "Not provided" }}</p>
+                <p class="mb-1 small">
+                    <strong>Experience:</strong>
+                    {% if trek.staff.details and trek.staff.details.experience_years is not none %}
+                        {{ trek.staff.details.experience_years }} year(s)
+                    {% else %}
+                        Not provided
+                    {% endif %}
+                </p>
+                <p class="mb-0 small"><strong>Treks Completed:</strong> {{ trek.staff.completed_treks_count }}</p>
+            </div>
+        {% else %}
+            <p class="text-muted mb-0">A guide has not been assigned to this trek yet.</p>
+        {% endif %}
+    </div>
+</div>

@@ -1,0 +1,51 @@
+{% extends "layout_dashboard.html" %}
+{% set active_page = 'users' %}
+{% block title %}Manage Users{% endblock %}
+{% block content %}
+<h2 class="mb-4">Manage Trekkers</h2>
+{% if users %}
+<div class="table-responsive">
+    <table class="table table-hover bg-white">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Joined Date</th>
+                <th>Month</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for trekker in users %}
+            <tr class="{% if trekker.is_blacklisted %}table-danger{% endif %}">
+                <td>{{ trekker.scoped_display_id }}</td>
+                <td>{{ trekker.full_name }}</td>
+                <td>{{ trekker.email }}</td>
+                <td>{{ trekker.phone or "-" }}</td>
+                <td>{{ trekker.created_at.strftime('%d %b %Y') if trekker.created_at else "-" }}</td>
+                <td>{{ trekker.created_at.strftime('%B') if trekker.created_at else "-" }}</td>
+                <td>
+                    {% if trekker.is_blacklisted %}
+                        <span class="badge bg-danger">Blacklisted</span>
+                    {% else %}
+                        <span class="badge bg-success">Active</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{{ url_for('admin.user_detail', user_id=trekker.id) }}"
+                       class="btn btn-sm btn-outline-secondary">View</a>
+                    <a href="{{ url_for('admin.edit_user', user_id=trekker.id) }}"
+                       class="btn btn-sm btn-outline-primary">Edit</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<p class="text-muted">No trekkers registered yet.</p>
+{% endif %}
+{% endblock %}

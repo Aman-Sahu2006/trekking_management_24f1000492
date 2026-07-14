@@ -1,0 +1,27 @@
+{% extends "layout_dashboard.html" %}
+{% import "admin/_status_badge.html" as badges %}
+{% set active_page = 'assigned_treks' %}
+{% block title %}Trek Details{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">{{ trek.name }} {{ badges.status_badge(trek.status) }}</h2>
+    <a href="{{ url_for('staff.assigned_treks') }}" class="btn btn-outline-secondary">&larr; Back to Treks</a>
+</div>
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        {% if trek.image_filename %}
+            <img src="{{ url_for('static', filename='upload/' + trek.image_filename) }}"
+                 class="img-fluid rounded mb-3" alt="{{ trek.name }}">
+        {% endif %}
+        <p><strong>Location:</strong> {{ trek.location }}</p>
+        <p><strong>Difficulty:</strong> {{ trek.difficulty }}</p>
+        <p><strong>Duration:</strong> {{ trek.duration_days }} day(s)</p>
+        <p><strong>Slots:</strong> {{ trek.available_slots }} available out of {{ trek.total_slots }}</p>
+        <p><strong>Dates:</strong> {{ trek.start_date }} to {{ trek.end_date }}</p>
+        <p><strong>Description:</strong><br>{{ trek.description or "No description provided." }}</p>
+        <p><strong>Health &amp; Awareness:</strong><br>{{ trek.safety_info or "No safety information provided." }}</p>
+        <a href="{{ url_for('staff.trek_management', trek_id=trek.id) }}" class="btn btn-trek">Manage Trek</a>
+        <a href="{{ url_for('staff.participants', trek_id=trek.id) }}" class="btn btn-outline-secondary">View Participants</a>
+    </div>
+</div>
+{% endblock %}

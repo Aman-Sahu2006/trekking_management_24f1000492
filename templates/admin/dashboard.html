@@ -1,0 +1,128 @@
+{% extends "layout_dashboard.html" %}
+{% set active_page = 'dashboard' %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+<style>
+    .sidebar-link:hover {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        color: #ffffff !important;
+        opacity: 1 !important;
+        transition: all 0.2s ease-in-out;
+    }
+</style>
+<div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+    <h2 class="fw-bold text-dark mb-0">Admin Dashboard</h2>
+    <div>
+        <a href="{{ url_for('admin.add_trek') }}" class="btn btn-trek me-2 px-3 py-2">
+            + Add New Trek
+        </a>
+        <a href="{{ url_for('admin.staff_list') }}" class="btn btn-outline-secondary px-3 py-2 shadow-sm">
+            View Staff Requests
+        </a>
+    </div>
+</div>
+{% if pending_staff_count and pending_staff_count > 0 %}
+<div class="alert alert-warning border-0 shadow-sm d-flex justify-content-between align-items-center mb-4 p-3 rounded-3">
+    <span class="text-dark">
+        ⚠️ You have <strong>{{ pending_staff_count }}</strong> staff registration request(s) waiting for approval.
+    </span>
+    <a href="{{ url_for('admin.staff_list') }}" class="btn btn-sm btn-warning fw-semibold px-3 shadow-sm">Review Now</a>
+</div>
+{% endif %}
+<div class="row g-4 mb-4">
+    <div class="col-12 col-md-3">
+        <div class="card h-100 border-0 shadow-sm p-4 rounded-3 bg-white">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <p class="text-uppercase font-monospace text-muted small mb-1 fw-bold">Total Treks</p>
+                    <h2 class="display-6 fw-bold mb-0 text-dark">{{ total_treks }}</h2>
+                </div>
+                <div class="rounded-circle p-3" style="background-color: #eaf2ed; color: #2c5e43;">
+                    <span style="font-size: 1.75rem; line-height: 1;">🥾</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-3">
+        <div class="card h-100 border-0 shadow-sm p-4 rounded-3 bg-white">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <p class="text-uppercase font-monospace text-muted small mb-1 fw-bold">Total Users</p>
+                    <h2 class="display-6 fw-bold mb-0 text-dark">{{ total_users }}</h2>
+                </div>
+                <div class="rounded-circle p-3" style="background-color: #e7f1ff;">
+                    <span style="font-size: 1.75rem; line-height: 1;">🧑‍🤝‍🧑</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-3">
+        <div class="card h-100 border-0 shadow-sm p-4 rounded-3 bg-white">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <p class="text-uppercase font-monospace text-muted small mb-1 fw-bold">Total Staff</p>
+                    <h2 class="display-6 fw-bold mb-0 text-dark">{{ total_staff }}</h2>
+                </div>
+                <div class="rounded-circle p-3" style="background-color: #e7f1ff;">
+                    <span style="font-size: 1.75rem; line-height: 1;">👥</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-3">
+        <div class="card h-100 border-0 shadow-sm p-4 rounded-3 bg-white">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <p class="text-uppercase font-monospace text-muted small mb-1 fw-bold">Total Bookings</p>
+                    <h2 class="display-6 fw-bold mb-0 text-dark">{{ total_bookings }}</h2>
+                </div>
+                <div class="rounded-circle p-3" style="background-color: #fff3cd;">
+                    <span style="font-size: 1.75rem; line-height: 1;">📅</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="card border-0 shadow-sm p-4 rounded-3 bg-white">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold mb-0 text-dark">Recent Bookings</h5>
+        <a href="{{ url_for('admin.bookings_list') }}" class="text-decoration-none small fw-semibold" style="color: var(--sky-deep);">
+            View All Bookings &rarr;
+        </a>
+    </div>
+    {% if recent_bookings %}
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr class="text-muted small text-uppercase">
+                    <th>Booking ID</th>
+                    <th>User</th>
+                    <th>Trek</th>
+                    <th>Booking Date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for booking in recent_bookings %}
+                <tr>
+                    <td>B{{ "%03d"|format(booking.id) }}</td>
+                    <td>
+                        <a href="{{ url_for('admin.booking_detail', booking_id=booking.id) }}" class="text-decoration-none">
+                            {{ booking.user.full_name }}
+                        </a>
+                    </td>
+                    <td>{{ booking.trek.name }}</td>
+                    <td>{{ booking.booking_date.strftime('%d %b %Y') }}</td>
+                    <td><span class="badge badge-{{ booking.status|lower }}">{{ booking.status }}</span></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="text-center py-5 border border-dashed rounded" style="border-style: dashed !important; border-width: 2px !important; border-color: #dee2e6 !important;">
+        <p class="text-muted mb-0">No bookings have been made yet.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

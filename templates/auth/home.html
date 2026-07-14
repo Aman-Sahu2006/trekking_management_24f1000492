@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block title %}Welcome - Peak Mist{% endblock %}
+{% block content %}
+<div class="hero-section">
+    <h1>🏔️ Peak Mist</h1>
+    <p class="lead">Plan, book, and manage trekking adventures all in one place.</p>
+    {% if not current_user.is_authenticated %}
+        <div>
+            <a href="{{ url_for('auth.register') }}" class="btn btn-light btn-lg me-2">Get Started</a>
+            <a href="{{ url_for('auth.login') }}" class="btn btn-outline-light btn-lg">Login</a>
+        </div>
+        <p class="mt-3 mb-0">
+            <a href="{{ url_for('auth.register_staff') }}" class="text-white text-decoration-underline">
+                Are you a trek guide? Register as Trek Staff
+            </a>
+        </p>
+    {% endif %}
+</div>
+<div class="container my-3">
+    <h2 class="text-center fw-bold gallery-heading">Explore the Outdoors</h2>
+    <div class="gallery-heading-underline mx-auto mb-4"></div>
+    <p class="text-center text-muted mb-4">From gentle trails to rugged summits — there's a trek for every adventurer.</p>
+    <div class="row g-4">
+        <div class="col-md-3">
+            <div class="card trek-gallery-card h-100">
+                <div class="trek-gallery-img-wrap">
+                    <img
+                        src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600&q=80"
+                        alt="Himalayan mountain trail"
+                        class="trek-gallery-img"
+                    >
+                    <span class="trek-gallery-badge">🏔️ High Altitude</span>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title fw-bold">Himalayan Trails</h5>
+                    <p class="card-text text-muted">Conquer snow-capped peaks and breathtaking ridge walks through some of the world's most iconic mountain landscapes.</p>
+                    <span class="badge badge-closed px-3 py-1">Hard</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card trek-gallery-card h-100">
+                <div class="trek-gallery-img-wrap">
+                    <img
+                        src="https://images.unsplash.com/photo-1448375240586-882707db888b?w=600&q=80"
+                        alt="Dense forest trail"
+                        class="trek-gallery-img"
+                    >
+                    <span class="trek-gallery-badge">🌿 Nature Walk</span>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title fw-bold">Forest Escapes</h5>
+                    <p class="card-text text-muted">Wind through ancient forests, listening to birdsong and the rustle of leaves on peaceful, shaded trails.</p>
+                    <span class="badge badge-open px-3 py-1">Easy</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card trek-gallery-card h-100">
+                <div class="trek-gallery-img-wrap">
+                    <img
+                        src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&q=80"
+                        alt="Mountain valley trail"
+                        class="trek-gallery-img"
+                    >
+                    <span class="trek-gallery-badge">🌄 Scenic Route</span>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title fw-bold">Valley Wanderers</h5>
+                    <p class="card-text text-muted">Discover hidden valleys, glacial rivers, and wildflower meadows on trails perfectly suited for moderate adventurers.</p>
+                    <span class="badge badge-approved px-3 py-1">Moderate</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card trek-gallery-card h-100">
+                <div class="trek-gallery-img-wrap">
+                    <img
+                        src="https://images.unsplash.com/photo-1470770903676-69b98201ea1c?w=600&q=80"
+                        alt="Scenic bridge over mountain water"
+                        class="trek-gallery-img"
+                    >
+                    <span class="trek-gallery-badge">🌉 Scenic Route</span>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title fw-bold">Bridge Crossings</h5>
+                    <p class="card-text text-muted">Cross scenic bridges over glacial waters with mountain views on all sides — a favorite for photographers.</p>
+                    <span class="badge badge-approved px-3 py-1">Moderate</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="features-strip py-5">
+    <div class="container">
+        <div class="row text-center g-4">
+            <div class="col-md-4">
+                <div class="feature-icon mb-3">🥾</div>
+                <h5 class="fw-bold">Discover Treks</h5>
+                <p class="text-muted mb-0">Browse by difficulty, location, and dates to find your perfect adventure.</p>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-icon mb-3">📅</div>
+                <h5 class="fw-bold">Easy Booking</h5>
+                <p class="text-muted mb-0">Book your spot in a few clicks and track your status in real time.</p>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-icon mb-3">📜</div>
+                <h5 class="fw-bold">Trek History</h5>
+                <p class="text-muted mb-0">Keep a complete record of every adventure you've embarked on.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
