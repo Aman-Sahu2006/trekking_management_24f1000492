@@ -151,10 +151,6 @@ class Trek(db.Model):
 class Booking(db.Model):
     __tablename__ = "bookings"
 
-    __table_args__ = (
-        db.UniqueConstraint("user_id", "trek_id", name="uq_user_trek"),
-    )
-
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     trek_id = db.Column(db.Integer, db.ForeignKey("treks.id"), nullable=False)

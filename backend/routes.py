@@ -29,14 +29,19 @@ def role_required(*allowed_roles):
     return decorator
 
 
+# ============================================================
+# AUTH ROUTES START (login, register, logout)
+# ============================================================
 auth_bp = Blueprint("auth", __name__, template_folder="../templates/auth")
 
 
+# home
 @auth_bp.route("/")
 def home():
     return render_template("auth/home.html")
 
 
+# login
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -78,6 +83,7 @@ def login():
     return render_template("auth/login.html")
 
 
+# register
 @auth_bp.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
@@ -123,6 +129,7 @@ def register():
     return render_template("auth/register.html")
 
 
+# register staff
 @auth_bp.route("/register-staff", methods=["GET", "POST"])
 def register_staff():
     if request.method == "POST":
@@ -170,6 +177,7 @@ def register_staff():
     return render_template("auth/register_staff.html")
 
 
+# logout
 @auth_bp.route("/logout")
 @login_required
 def logout():
@@ -178,9 +186,13 @@ def logout():
     return redirect(url_for("auth.home"))
 
 
+# ============================================================
+# ADMIN ROUTES START (dashboard, treks, staff, users, bookings)
+# ============================================================
 admin_bp = Blueprint("admin", __name__, template_folder="../templates/admin")
 
 
+# admin dashboard
 @admin_bp.route("/dashboard")
 @login_required
 @role_required("admin")
@@ -208,6 +220,7 @@ def dashboard():
     )
 
 
+# admin treks list
 @admin_bp.route("/treks")
 @login_required
 @role_required("admin")
@@ -216,6 +229,7 @@ def treks():
     return render_template("admin/treks.html", treks=all_treks)
 
 
+# add trek
 @admin_bp.route("/treks/add", methods=["GET", "POST"])
 @login_required
 @role_required("admin")
@@ -273,6 +287,7 @@ def add_trek():
     return render_template("admin/edit_trek.html", trek=None)
 
 
+# edit trek
 @admin_bp.route("/treks/<int:trek_id>/edit", methods=["GET", "POST"])
 @login_required
 @role_required("admin")
@@ -309,6 +324,7 @@ def edit_trek(trek_id):
     return render_template("admin/edit_trek.html", trek=trek)
 
 
+# delete trek
 @admin_bp.route("/treks/<int:trek_id>/delete", methods=["POST"])
 @login_required
 @role_required("admin")
@@ -320,6 +336,7 @@ def delete_trek(trek_id):
     return redirect(url_for("admin.treks"))
 
 
+# admin trek details
 @admin_bp.route("/treks/<int:trek_id>")
 @login_required
 @role_required("admin")
@@ -327,11 +344,12 @@ def trek_details(trek_id):
     trek = Trek.query.get_or_404(trek_id)
     all_staff = [
         s for s in User.query.filter_by(role="staff").all()
-        if s.staff_profile and s.staff_profile.status == "active"
+        if s.staff_profile and s.staff_profile.status == "active" and not s.is_blacklisted
     ]
     return render_template("admin/trek_details.html", trek=trek, all_staff=all_staff)
 
 
+# assign staff
 @admin_bp.route("/treks/<int:trek_id>/assign-staff", methods=["POST"])
 @login_required
 @role_required("admin")
@@ -344,6 +362,10 @@ def assign_staff(trek_id):
         flash("You can only assign staff members who have been approved.", "danger")
         return redirect(url_for("admin.trek_details", trek_id=trek.id))
 
+    if staff_profile.user and staff_profile.user.is_blacklisted:
+        flash("You cannot assign a blacklisted staff member.", "danger")
+        return redirect(url_for("admin.trek_details", trek_id=trek.id))
+
     trek.staff_id = staff_profile_id
 
     if trek.status == "Pending":
@@ -354,6 +376,7 @@ def assign_staff(trek_id):
     return redirect(url_for("admin.trek_details", trek_id=trek.id))
 
 
+# staff list
 @admin_bp.route("/staff")
 @login_required
 @role_required("admin")
@@ -372,6 +395,7 @@ def staff_list():
     )
 
 
+# approve staff
 @admin_bp.route("/staff/<int:user_id>/approve", methods=["POST"])
 @login_required
 @role_required("admin")
@@ -388,6 +412,7 @@ def approve_staff(user_id):
     return redirect(url_for("admin.staff_list"))
 
 
+# reject staff
 @admin_bp.route("/staff/<int:user_id>/reject", methods=["POST"])
 @login_required
 @role_required("admin")
@@ -404,6 +429,7 @@ def reject_staff(user_id):
     return redirect(url_for("admin.staff_list"))
 
 
+# edit staff
 @admin_bp.route("/staff/<int:user_id>/edit", methods=["GET", "POST"])
 @login_required
 @role_required("admin")
@@ -411,6 +437,20 @@ def edit_staff(user_id):
     staff_user = User.query.filter_by(id=user_id, role="staff").first_or_404()
 
     if request.method == "POST":
+        new_username = request.form.get("username", "").strip()
+
+        if not new_username:
+            flash("Username cannot be empty.", "danger")
+            return redirect(url_for("admin.edit_staff", user_id=staff_user.id))
+
+        existing = User.query.filter(
+            User.username == new_username, User.id != staff_user.id
+        ).first()
+        if existing:
+            flash("That username is already taken. Please choose another.", "danger")
+            return redirect(url_for("admin.edit_staff", user_id=staff_user.id))
+
+        staff_user.username = new_username
         staff_user.full_name = request.form.get("full_name", "").strip()
         staff_user.email = request.form.get("email", "").strip()
         staff_user.phone = request.form.get("phone", "").strip()
@@ -422,6 +462,7 @@ def edit_staff(user_id):
     return render_template("admin/edit_staff.html", staff=staff_user)
 
 
+# remove staff
 @admin_bp.route("/staff/<int:user_id>/remove", methods=["POST"])
 @login_required
 @role_required("admin")
@@ -433,6 +474,7 @@ def remove_staff(user_id):
     return redirect(url_for("admin.staff_list"))
 
 
+# staff detail
 @admin_bp.route("/staff/<int:user_id>")
 @login_required
 @role_required("admin")
@@ -453,6 +495,7 @@ def _assign_scoped_user_ids(users):
     return users
 
 
+# users list
 @admin_bp.route("/users")
 @login_required
 @role_required("admin")
@@ -462,6 +505,7 @@ def users_list():
     return render_template("admin/users.html", users=all_users)
 
 
+# user detail
 @admin_bp.route("/users/<int:user_id>")
 @login_required
 @role_required("admin")
@@ -471,6 +515,7 @@ def user_detail(user_id):
     return render_template("admin/user_detail.html", user=target_user)
 
 
+# edit user
 @admin_bp.route("/users/<int:user_id>/edit", methods=["GET", "POST"])
 @login_required
 @role_required("admin")
@@ -478,6 +523,20 @@ def edit_user(user_id):
     target_user = User.query.filter_by(id=user_id, role="user").first_or_404()
 
     if request.method == "POST":
+        new_username = request.form.get("username", "").strip()
+
+        if not new_username:
+            flash("Username cannot be empty.", "danger")
+            return redirect(url_for("admin.edit_user", user_id=target_user.id))
+
+        existing = User.query.filter(
+            User.username == new_username, User.id != target_user.id
+        ).first()
+        if existing:
+            flash("That username is already taken. Please choose another.", "danger")
+            return redirect(url_for("admin.edit_user", user_id=target_user.id))
+
+        target_user.username = new_username
         target_user.full_name = request.form.get("full_name", "").strip()
         target_user.email = request.form.get("email", "").strip()
         target_user.phone = request.form.get("phone", "").strip()
@@ -489,6 +548,7 @@ def edit_user(user_id):
     return render_template("admin/edit_user.html", user=target_user)
 
 
+# toggle blacklist
 @admin_bp.route("/blacklist/<int:user_id>", methods=["POST"])
 @login_required
 @role_required("admin")
@@ -508,6 +568,10 @@ def toggle_blacklist(user_id):
     return redirect(url_for("admin.user_detail", user_id=target_user.id))
 
 
+# ------------------------------------------------------------
+# BOOKING (ADMIN VIEW) ROUTES START (list + detail, admin-side)
+# ------------------------------------------------------------
+# bookings list
 @admin_bp.route("/bookings")
 @login_required
 @role_required("admin")
@@ -527,6 +591,7 @@ def bookings_list():
     )
 
 
+# booking detail
 @admin_bp.route("/bookings/<int:booking_id>")
 @login_required
 @role_required("admin")
@@ -547,6 +612,10 @@ def _match_display_id(query_text, prefix):
     return None
 
 
+# ------------------------------------------------------------
+# SEARCH ROUTES START (admin search across treks/staff/users)
+# ------------------------------------------------------------
+# admin search
 @admin_bp.route("/search")
 @login_required
 @role_required("admin")
@@ -597,6 +666,10 @@ def search():
     )
 
 
+# ------------------------------------------------------------
+# ANALYTICS ROUTES START (dashboard charts / stats for admin)
+# ------------------------------------------------------------
+# analytics
 @admin_bp.route("/analytics")
 @login_required
 @role_required("admin")
@@ -639,6 +712,9 @@ def analytics():
     )
 
 
+# ============================================================
+# STAFF ROUTES START (dashboard, assigned treks, trek management)
+# ============================================================
 staff_bp = Blueprint("staff", __name__, template_folder="../templates/staff")
 
 
@@ -646,6 +722,7 @@ def get_current_staff_profile():
     return StaffProfile.query.filter_by(user_id=current_user.id).first()
 
 
+# staff dashboard
 @staff_bp.route("/dashboard")
 @login_required
 @role_required("staff")
@@ -667,6 +744,7 @@ def dashboard():
     )
 
 
+# assigned treks
 @staff_bp.route("/assigned-treks")
 @login_required
 @role_required("staff")
@@ -682,6 +760,7 @@ def verify_staff_owns_trek(trek):
         abort(403)
 
 
+# staff trek details
 @staff_bp.route("/treks/<int:trek_id>")
 @login_required
 @role_required("staff")
@@ -691,6 +770,7 @@ def trek_details(trek_id):
     return render_template("staff/trek_details.html", trek=trek)
 
 
+# trek management
 @staff_bp.route("/treks/<int:trek_id>/manage", methods=["GET", "POST"])
 @login_required
 @role_required("staff")
@@ -718,6 +798,7 @@ def trek_management(trek_id):
     return render_template("staff/trek_management.html", trek=trek)
 
 
+# participants
 @staff_bp.route("/treks/<int:trek_id>/participants")
 @login_required
 @role_required("staff")
@@ -729,11 +810,26 @@ def participants(trek_id):
     return render_template("staff/participants.html", trek=trek, bookings=trek_bookings)
 
 
+# staff edit profile
 @staff_bp.route("/profile/edit", methods=["GET", "POST"])
 @login_required
 @role_required("staff")
 def edit_profile():
     if request.method == "POST":
+        new_username = request.form.get("username", "").strip()
+
+        if not new_username:
+            flash("Username cannot be empty.", "danger")
+            return redirect(url_for("staff.edit_profile"))
+
+        existing = User.query.filter(
+            User.username == new_username, User.id != current_user.id
+        ).first()
+        if existing:
+            flash("That username is already taken. Please choose another.", "danger")
+            return redirect(url_for("staff.edit_profile"))
+
+        current_user.username = new_username
         current_user.full_name = request.form.get("full_name", "").strip()
         current_user.email = request.form.get("email", "").strip()
         current_user.phone = request.form.get("phone", "").strip()
@@ -753,9 +849,13 @@ def edit_profile():
     return render_template("staff/edit_profile.html", staff=current_user)
 
 
+# ============================================================
+# USER ROUTES START (dashboard, browsing treks, bookings, history)
+# ============================================================
 user_bp = Blueprint("user", __name__, template_folder="../templates/user")
 
 
+# user dashboard
 @user_bp.route("/dashboard")
 @login_required
 @role_required("user")
@@ -770,6 +870,7 @@ def dashboard():
     )
 
 
+# available treks
 @user_bp.route("/treks")
 @login_required
 @role_required("user")
@@ -800,6 +901,7 @@ def available_treks():
     )
 
 
+# user trek details
 @user_bp.route("/treks/<int:trek_id>")
 @login_required
 @role_required("user")
@@ -815,6 +917,9 @@ def trek_details(trek_id):
     bmi_value = None
     bmi_category = None
 
+    # --------------------------------------------------------
+    # BMI ROUTES/LOGIC START (calculate + log BMI on trek page)
+    # --------------------------------------------------------
     if bmi_weight and bmi_height and bmi_weight > 0 and bmi_height > 0:
         height_m = bmi_height / 100
         bmi_value = round(bmi_weight / (height_m * height_m), 1)
@@ -858,6 +963,7 @@ def trek_details(trek_id):
     )
 
 
+# book trek
 @user_bp.route("/treks/<int:trek_id>/book", methods=["GET", "POST"])
 @login_required
 @role_required("user")
@@ -900,6 +1006,7 @@ def book_trek(trek_id):
     return render_template("user/book_trek.html", trek=trek)
 
 
+# booking details
 @user_bp.route("/bookings/<int:booking_id>")
 @login_required
 @role_required("user")
@@ -912,6 +1019,7 @@ def booking_details(booking_id):
     return render_template("user/booking_details.html", booking=booking)
 
 
+# cancel booking
 @user_bp.route("/bookings/<int:booking_id>/cancel", methods=["POST"])
 @login_required
 @role_required("user")
@@ -930,6 +1038,7 @@ def cancel_booking(booking_id):
     return redirect(url_for("user.trek_history"))
 
 
+# trek history
 @user_bp.route("/history")
 @login_required
 @role_required("user")
@@ -940,6 +1049,7 @@ def trek_history():
     return render_template("user/trek_history.html", bookings=all_bookings)
 
 
+# history details
 @user_bp.route("/history/<int:booking_id>")
 @login_required
 @role_required("user")
@@ -952,11 +1062,26 @@ def history_details(booking_id):
     return render_template("user/history_details.html", booking=booking)
 
 
+# user edit profile
 @user_bp.route("/profile/edit", methods=["GET", "POST"])
 @login_required
 @role_required("user")
 def edit_profile():
     if request.method == "POST":
+        new_username = request.form.get("username", "").strip()
+
+        if not new_username:
+            flash("Username cannot be empty.", "danger")
+            return redirect(url_for("user.edit_profile"))
+
+        existing = User.query.filter(
+            User.username == new_username, User.id != current_user.id
+        ).first()
+        if existing:
+            flash("That username is already taken. Please choose another.", "danger")
+            return redirect(url_for("user.edit_profile"))
+
+        current_user.username = new_username
         current_user.full_name = request.form.get("full_name", "").strip()
         current_user.email = request.form.get("email", "").strip()
         current_user.phone = request.form.get("phone", "").strip()
